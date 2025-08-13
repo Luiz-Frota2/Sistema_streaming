@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StreamRents — Aluguel de Telas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>StreamRent — Aluguel de Telas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,7 +18,7 @@
 <body>
   <div class="app">
     <aside class="sidebar">
-      <div class="brand"><i class="fa-solid fa-tv"></i><h1>Sistema de Controle de cliente</h1></div>
+      <div class="brand"><i class="fa-solid fa-tv"></i><h1>StreamRent</h1></div>
       <div class="nav">
         <button class="active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
         <button data-view="clientes"><i class="fa-solid fa-users"></i> Clientes</button>
@@ -34,6 +37,7 @@
       <header>
         <div class="left">
           <h2 id="title" style="margin:0">Dashboard</h2>
+          <div class="note">Sistema local (LocalStorage) — moderno, simples e com animações ✨</div>
         </div>
         <div class="right">
           <button class="btn ghost" id="exportBtn"><i class="fa-solid fa-file-export"></i> Exportar</button>
@@ -314,6 +318,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
-
-
