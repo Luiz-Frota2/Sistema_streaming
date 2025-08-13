@@ -109,29 +109,31 @@ function renderServicos(){
     wrap.innerHTML = `<div class="empty">Nenhum serviço cadastrado. Clique em "Novo Serviço".</div>`; return;
   }
   wrap.innerHTML = `
-    <table>
-      <thead><tr>
-        <th>Ativo</th><th>Serviço</th><th>Slots</th><th>Investimento (mês)</th><th>Aluguel (mês)</th><th>Ocupação</th><th>Ações</th>
-      </tr></thead>
-      <tbody>
-        ${state.servicos.map(s=>{
-          const occ = serviceOccupancy(s.id);
-          return `
-            <tr>
-              <td><div class="toggle ${s.ativo?'active':''}" data-tgl-srv="${s.id}"><i></i></div></td>
-              <td>${s.nome}</td>
-              <td>${s.slots||0}</td>
-              <td>${formatBRL(s.custo||0)}</td>
-              <td>${formatBRL(s.preco||0)}</td>
-              <td>${occ}/${s.slots||0}</td>
-              <td>
-                <button class="btn" data-edit-srv="${s.id}"><i class="fa-regular fa-pen-to-square"></i></button>
-                <button class="btn danger" data-del-srv="${s.id}"><i class="fa-regular fa-trash-can"></i></button>
-              </td>
-            </tr>`;
-        }).join('')}
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Ativo</th><th>Serviço</th><th>Slots</th><th>Investimento (mês)</th><th>Aluguel (mês)</th><th>Ocupação</th><th>Ações</th>
+        </tr></thead>
+        <tbody>
+          ${state.servicos.map(s=>{
+            const occ = serviceOccupancy(s.id);
+            return `
+              <tr>
+                <td><div class="toggle ${s.ativo?'active':''}" data-tgl-srv="${s.id}"><i></i></div></td>
+                <td>${s.nome}</td>
+                <td>${s.slots||0}</td>
+                <td>${formatBRL(s.custo||0)}</td>
+                <td>${formatBRL(s.preco||0)}</td>
+                <td>${occ}/${s.slots||0}</td>
+                <td>
+                  <button class="btn" data-edit-srv="${s.id}"><i class="fa-regular fa-pen-to-square"></i></button>
+                  <button class="btn danger" data-del-srv="${s.id}"><i class="fa-regular fa-trash-can"></i></button>
+                </td>
+              </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
   `;
   $$('[data-tgl-srv]').forEach(t=>t.addEventListener('click',()=>{
     const id=t.getAttribute('data-tgl-srv'); const srv=state.servicos.find(x=>x.id===id);
@@ -251,6 +253,48 @@ function badge(status){
 }
 
 function renderResumoClientes(elId, filtros={}){
+  const wrap = $(elId);
+  if(!state.clientes.length){ wrap.innerHTML='<div class="empty">Nenhum cliente ainda.</div>'; return; }
+  const busca = (filtros.busca||'').toLowerCase();
+  const st = filtros.status||'all'; const srv = filtros.servico||'all';
+  const filtered = state.clientes.filter(c=>{
+    const s1 = !busca || (c.nome?.toLowerCase().includes(busca) || (c.contato||'').toLowerCase().includes(busca));
+    const s2 = st==='all' || statusCliente(c)===st;
+    const s3 = srv==='all' || (c.servicos||[]).some(o=>o.id===srv);
+    return s1 && s2 && s3;
+  });
+  if(!filtered.length){ wrap.innerHTML='<div class="empty">Nenhum resultado para os filtros.</div>'; return; }
+  wrap.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Cliente</th><th>Serviços</th><th>Mensalidade</th><th>Dia Cobrança</th><th>Próxima cobrança</th><th>Status</th><th>Ações</th>
+        </tr></thead>
+        <tbody>
+        ${filtered.map(c=>{
+          const servs=(c.servicos||[]).map(o=> state.servicos.find(s=>s.id===o.id)?.nome).filter(Boolean).join(', ')||'-';
+          const mensal = formatBRL(precoCliente(c));
+          const status = statusCliente(c);
+          return `<tr>
+            <td>${c.nome}<div class="note">${c.contato||''}</div></td>
+            <td>${servs}</td>
+            <td>${mensal}</td>
+            <td>${c.diaCob||new Date(c.inicio).getDate()}</td>
+            <td>${fmtDate(c.proxima)}</td>
+            <td>${badge(status)}</td>
+            <td>
+              <button class="btn" data-pay="${c.id}"><i class="fa-solid fa-money-bill"></i></button>
+              <button class="btn" data-edit-cli="${c.id}"><i class="fa-regular fa-pen-to-square"></i></button>
+              <button class="btn danger" data-del-cli="${c.id}"><i class="fa-regular fa-trash-can"></i></button>
+            </td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  bindClienteActions(wrap);
+}){
   const wrap = $(elId);
   if(!state.clientes.length){ wrap.innerHTML='<div class="empty">Nenhum cliente ainda.</div>'; return; }
   const busca = (filtros.busca||'').toLowerCase();
@@ -388,18 +432,20 @@ function renderDespesas(){
   const items = state.despesas.filter(d=>d.competencia===mes);
   if(!items.length){ wrap.innerHTML='<div class="empty">Sem despesas nesta competência.</div>'; return; }
   wrap.innerHTML = `
-    <table>
-      <thead><tr><th>Descrição</th><th>Tipo</th><th>Competência</th><th>Valor</th><th>Ações</th></tr></thead>
-      <tbody>
-      ${items.map(d=>`<tr>
-        <td>${d.descricao}</td>
-        <td>${d.tipo}</td>
-        <td>${d.competencia}</td>
-        <td>${formatBRL(d.valor)}</td>
-        <td><button class="btn danger" data-del-desp="${d.id}"><i class="fa-regular fa-trash-can"></i></button></td>
-      </tr>`).join('')}
-      </tbody>
-    </table>`;
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Descrição</th><th>Tipo</th><th>Competência</th><th>Valor</th><th>Ações</th></tr></thead>
+        <tbody>
+        ${items.map(d=>`<tr>
+          <td>${d.descricao}</td>
+          <td>${d.tipo}</td>
+          <td>${d.competencia}</td>
+          <td>${formatBRL(d.valor)}</td>
+          <td><button class="btn danger" data-del-desp="${d.id}"><i class="fa-regular fa-trash-can"></i></button></td>
+        </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
   $$('[data-del-desp]').forEach(b=>b.addEventListener('click',()=>{
     const id=b.getAttribute('data-del-desp'); state.despesas=state.despesas.filter(x=>x.id!==id);
     save(state); renderDespesas(); renderDashboard(); toast('Despesa removida.');
@@ -460,26 +506,28 @@ function renderCobrancas(){
     return s1 && s2 && s3;
   });
   wrap.innerHTML = `
-    <table>
-      <thead><tr><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
-      <tbody>
-        ${filtered.map(c=>{
-          const status=statusCliente(c); const valor=formatBRL(precoCliente(c));
-          const msg = encodeURIComponent(`Olá ${c.nome}! Sua cobrança de ${valor} vence em ${fmtDate(c.proxima)}. Posso enviar o PIX?`);
-          return `<tr>
-            <td>${c.nome}<div class="note">${c.contato||''}</div></td>
-            <td>${valor}</td>
-            <td>${fmtDate(c.proxima)}</td>
-            <td>${badge(status)}</td>
-            <td>
-              <button class="btn success" data-pay="${c.id}"><i class="fa-solid fa-circle-check"></i> Marcar pago</button>
-              <button class="btn" onclick="navigator.clipboard.writeText('Cobrança ${valor} – ${c.nome} venc. ${fmtDate(c.proxima)}'); toast('Lembrete copiado!')"><i class="fa-regular fa-copy"></i> Copiar</button>
-              <a class="btn" target="_blank" href="https://api.whatsapp.com/send?phone=&text=${msg}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
-            </td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody>
+          ${filtered.map(c=>{
+            const status=statusCliente(c); const valor=formatBRL(precoCliente(c));
+            const msg = encodeURIComponent(\`Olá ${c.nome}! Sua cobrança de ${valor} vence em ${fmtDate(c.proxima)}. Posso enviar o PIX?\`);
+            return `<tr>
+              <td>${c.nome}<div class="note">${c.contato||''}</div></td>
+              <td>${valor}</td>
+              <td>${fmtDate(c.proxima)}</td>
+              <td>${badge(status)}</td>
+              <td>
+                <button class="btn success" data-pay="${c.id}"><i class="fa-solid fa-circle-check"></i> Marcar pago</button>
+                <button class="btn" onclick="navigator.clipboard.writeText('Cobrança ${valor} – ${c.nome} venc. ${fmtDate(c.proxima)}'); toast('Lembrete copiado!')"><i class="fa-regular fa-copy"></i> Copiar</button>
+                <a class="btn" target="_blank" href="https://api.whatsapp.com/send?phone=&text=${msg}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
   `;
   bindClienteActions(wrap);
 }
@@ -577,20 +625,22 @@ function renderRelatorio(){
   const wrap=$('#wrapRelatorio');
   if(!rows.length){ wrap.innerHTML='<div class="empty">Selecione um período válido.</div>'; return; }
   wrap.innerHTML = `
-    <table>
-      <thead><tr>
-        <th>Mês</th><th>Receita</th><th>Fixos (Serviços)</th><th>Fixas (Despesas)</th><th>Variáveis</th><th>Gastos</th><th>Lucro</th><th>MRR</th><th>ARPU</th><th>Churn</th>
-      </tr></thead>
-      <tbody>
-      ${rows.map(r=>`<tr>
-        <td>${r.ym}</td><td>${formatBRL(r.receita)}</td><td>${formatBRL(r.fixosServ)}</td>
-        <td>${formatBRL(r.fixas)}</td><td>${formatBRL(r.variaveis)}</td>
-        <td>${formatBRL(r.gastos)}</td><td>${formatBRL(r.lucro)}</td>
-        <td>${formatBRL(r.mrr)}</td><td>${formatBRL(r.arpu)}</td>
-        <td>${(r.churn*100).toFixed(1)}%</td>
-      </tr>`).join('')}
-      </tbody>
-    </table>`;
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Mês</th><th>Receita</th><th>Fixos (Serviços)</th><th>Fixas (Despesas)</th><th>Variáveis</th><th>Gastos</th><th>Lucro</th><th>MRR</th><th>ARPU</th><th>Churn</th>
+        </tr></thead>
+        <tbody>
+        ${rows.map(r=>`<tr>
+          <td>${r.ym}</td><td>${formatBRL(r.receita)}</td><td>${formatBRL(r.fixosServ)}</td>
+          <td>${formatBRL(r.fixas)}</td><td>${formatBRL(r.variaveis)}</td>
+          <td>${formatBRL(r.gastos)}</td><td>${formatBRL(r.lucro)}</td>
+          <td>${formatBRL(r.mrr)}</td><td>${formatBRL(r.arpu)}</td>
+          <td>${(r.churn*100).toFixed(1)}%</td>
+        </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
   const last = rows[rows.length-1];
   $('#relMRR').textContent = formatBRL(last.mrr);
   $('#relARR').textContent = formatBRL(last.mrr*12);
