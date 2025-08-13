@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StreamRent — Aluguel de Telas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0e1116"/>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><i class="fa-solid fa-tv"></i><h1>StreamRent</h1></div>
+      <div class="nav">
+        <button class="active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+        <button data-view="clientes"><i class="fa-solid fa-users"></i> Clientes</button>
+        <button data-view="cobrancas"><i class="fa-solid fa-file-invoice-dollar"></i> Cobranças</button>
+        <button data-view="servicos"><i class="fa-solid fa-sliders"></i> Serviços & Config</button>
+        <button data-view="relatorios"><i class="fa-solid fa-table"></i> Relatórios</button>
+      </div>
+      <div class="grow"></div>
+      <div class="theme">
+        <span style="font-size:14px">Tema</span>
+        <div id="themeToggle" class="toggle"><i></i></div>
+      </div>
+    </aside>
+
+    <section class="content">
+      <header>
+        <div class="left">
+          <h2 id="title" style="margin:0">Dashboard</h2>
+          <div class="note">Sistema local (LocalStorage) — moderno, simples e com animações ✨</div>
+        </div>
+        <div class="right">
+          <button class="btn ghost" id="exportBtn"><i class="fa-solid fa-file-export"></i> Exportar</button>
+          <button class="btn ghost" id="importBtn"><i class="fa-solid fa-file-import"></i> Importar</button>
+        </div>
+      </header>
+
+      <main>
+        <!-- DASHBOARD -->
+        <section data-section="dashboard">
+          <div class="toolbar">
+            <div class="field" style="max-width:220px">
+              <label>Competência (mês)</label>
+              <input id="dashMes" type="month" class="input"/>
+            </div>
+            <button class="btn primary" data-open="clienteModal"><i class="fa-solid fa-user-plus"></i> Novo Cliente</button>
+            <button class="btn" data-open="servicoModal"><i class="fa-solid fa-circle-plus"></i> Novo Serviço</button>
+          </div>
+
+          <div class="cards">
+            <div class="card"><div class="pulse"></div><h3>Receita (mês)</h3><div id="receitaMes" class="value">R$ 0,00</div></div>
+            <div class="card"><div class="pulse"></div><h3>Gastos (mês)</h3><div id="gastosMes" class="value">R$ 0,00</div></div>
+            <div class="card"><div class="pulse"></div><h3>Lucro (mês)</h3><div id="lucroMes" class="value">R$ 0,00</div></div>
+            <div class="card"><div class="pulse"></div><h3>MRR (recorrente)</h3><div id="mrrMes" class="value">R$ 0,00</div></div>
+          </div>
+
+          <div class="grid" style="margin-top:16px">
+            <div class="col-7">
+              <h3 style="margin:8px 0 10px">Receita x Gastos x Lucro (últimos 6 meses)</h3>
+              <canvas id="chartLine" height="160"></canvas>
+            </div>
+            <div class="col-5">
+              <h3 style="margin:8px 0 10px">Receita por Serviço (mês selecionado)</h3>
+              <canvas id="chartPie" height="160"></canvas>
+            </div>
+          </div>
+
+          <h3 style="margin:20px 0 10px">Resumo de Clientes</h3>
+          <div class="toolbar">
+            <div class="col-5 field" style="max-width:340px">
+              <label>Buscar</label>
+              <input id="buscaClientes" class="input" placeholder="Nome ou contato"/>
+            </div>
+            <div class="col-4 field" style="max-width:220px">
+              <label>Status</label>
+              <select id="filtroStatus" class="input">
+                <option value="all">Todos</option>
+                <option value="ok">Em dia</option>
+                <option value="pending">Pendente</option>
+                <option value="overdue">Atrasado</option>
+              </select>
+            </div>
+            <div class="col-4 field" style="max-width:260px">
+              <label>Serviço</label>
+              <select id="filtroServico" class="input"></select>
+            </div>
+          </div>
+          <div id="wrapResumoClientes"></div>
+        </section>
+
+        <!-- CLIENTES -->
+        <section style="display:none" data-section="clientes">
+          <div class="toolbar">
+            <button class="btn primary" data-open="clienteModal"><i class="fa-solid fa-user-plus"></i> Novo Cliente</button>
+            <div class="field" style="max-width:320px">
+              <label>Buscar</label>
+              <input id="buscaClientes2" class="input" placeholder="Nome ou contato"/>
+            </div>
+            <div class="field" style="max-width:220px">
+              <label>Status</label>
+              <select id="filtroStatus2" class="input">
+                <option value="all">Todos</option>
+                <option value="ok">Em dia</option>
+                <option value="pending">Pendente</option>
+                <option value="overdue">Atrasado</option>
+              </select>
+            </div>
+            <div class="field" style="max-width:260px">
+              <label>Serviço</label>
+              <select id="filtroServico2" class="input"></select>
+            </div>
+          </div>
+          <div id="wrapClientes"></div>
+        </section>
+
+        <!-- COBRANÇAS -->
+        <section style="display:none" data-section="cobrancas">
+          <div class="toolbar">
+            <button class="btn" id="gerarCobrancas"><i class="fa-regular fa-bell"></i> Verificar Pendências</button>
+            <div class="field" style="max-width:320px">
+              <label>Buscar</label>
+              <input id="buscaCobrancas" class="input" placeholder="Nome ou contato"/>
+            </div>
+            <div class="field" style="max-width:220px">
+              <label>Status</label>
+              <select id="filtroStatusCob" class="input">
+                <option value="all">Todos</option>
+                <option value="ok">Em dia</option>
+                <option value="pending">Pendente</option>
+                <option value="overdue">Atrasado</option>
+              </select>
+            </div>
+            <div class="field" style="max-width:260px">
+              <label>Serviço</label>
+              <select id="filtroServicoCob" class="input"></select>
+            </div>
+          </div>
+          <div id="wrapCobrancas"></div>
+        </section>
+
+        <!-- SERVIÇOS & CONFIG -->
+        <section style="display:none" data-section="servicos">
+          <div class="grid">
+            <div class="col-8">
+              <div class="toolbar">
+                <button class="btn" data-open="servicoModal"><i class="fa-solid fa-circle-plus"></i> Novo Serviço</button>
+              </div>
+              <div id="wrapServicos"></div>
+
+              <div class="grid" style="margin-top:16px">
+                <div class="col-12 card">
+                  <h3>Despesas Extras</h3>
+                  <div class="grid" style="margin-top:8px; align-items:end">
+                    <div class="col-3 field">
+                      <label>Competência</label>
+                      <input id="despMes" type="month" class="input"/>
+                    </div>
+                    <div class="col-5 field">
+                      <label>Descrição</label>
+                      <input id="despDesc" class="input" placeholder="Internet, energia, taxas…"/>
+                    </div>
+                    <div class="col-2 field">
+                      <label>Tipo</label>
+                      <select id="despTipo" class="input">
+                        <option value="fixa">Fixa</option>
+                        <option value="variavel">Variável</option>
+                      </select>
+                    </div>
+                    <div class="col-2 field">
+                      <label>Valor</label>
+                      <input id="despValor" class="input currency" placeholder="R$ 0,00"/>
+                    </div>
+                    <div class="col-12" style="display:flex; justify-content:flex-end; gap:10px">
+                      <button class="btn success" id="addDespesa"><i class="fa-solid fa-plus"></i> Adicionar</button>
+                    </div>
+                  </div>
+                  <div class="toolbar">
+                    <div class="field" style="max-width:260px">
+                      <label>Filtrar competência</label>
+                      <input id="filtroDespMes" type="month" class="input"/>
+                    </div>
+                  </div>
+                  <div id="wrapDespesas"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-4">
+              <div class="card">
+                <h3>Preferências</h3>
+                <div class="field" style="margin-top:8px">
+                  <label>Tema claro/escuro</label>
+                  <div id="themeToggle2" class="toggle"><i></i></div>
+                </div>
+                <div class="field" style="margin-top:8px">
+                  <label>Paleta de cores</label>
+                  <select id="themePalette" class="input">
+                    <option value="azul">Azul (padrão)</option>
+                    <option value="verde">Verde</option>
+                    <option value="roxo">Roxo</option>
+                    <option value="laranja">Laranja</option>
+                  </select>
+                </div>
+                <div class="note" style="margin-top:12px">Preferências salvas no seu navegador (LocalStorage).</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- RELATÓRIOS -->
+        <section style="display:none" data-section="relatorios">
+          <div class="toolbar">
+            <div class="field" style="max-width:220px">
+              <label>De (mês)</label>
+              <input id="relDe" type="month" class="input"/>
+            </div>
+            <div class="field" style="max-width:220px">
+              <label>Até (mês)</label>
+              <input id="relAte" type="month" class="input"/>
+            </div>
+            <button class="btn" id="gerarRel"><i class="fa-solid fa-magnifying-glass-chart"></i> Gerar</button>
+            <button class="btn ghost" id="expCSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
+            <button class="btn ghost" id="expXLS"><i class="fa-regular fa-file-excel"></i> Excel</button>
+          </div>
+          <div class="cards">
+            <div class="card"><h3>MRR (mês final)</h3><div id="relMRR" class="value">R$ 0,00</div></div>
+            <div class="card"><h3>ARR (estimado)</h3><div id="relARR" class="value">R$ 0,00</div></div>
+            <div class="card"><h3>ARPU (mês final)</h3><div id="relARPU" class="value">R$ 0,00</div></div>
+            <div class="card"><h3>Churn (mês final)</h3><div id="relChurn" class="value">0%</div></div>
+          </div>
+          <div id="wrapRelatorio" style="margin-top:12px"></div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <!-- MODAL CLIENTE -->
+  <div id="clienteModal" class="modal">
+    <div class="box">
+      <header><h3 style="margin:0">Cadastrar Cliente</h3></header>
+      <div class="grid">
+        <div class="col-6 field">
+          <label>Nome</label>
+          <input id="cliNome" class="input" placeholder="Ex.: Maria Silva"/>
+        </div>
+        <div class="col-6 field">
+          <label>Telefone/Contato</label>
+          <input id="cliContato" class="input phone" placeholder="(84) 99999-0000"/>
+        </div>
+        <div class="col-4 field">
+          <label>Data de início</label>
+          <input id="cliInicio" type="date" class="input"/>
+        </div>
+        <div class="col-4 field">
+          <label>Dia de cobrança</label>
+          <select id="cliDiaCob" class="input"></select>
+        </div>
+        <div class="col-12">
+          <label>Serviços (ativos) + preço customizado opcional</label>
+          <div id="cliServicosWrap" class="card" style="padding:12px"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:14px">
+        <button class="btn" data-close>Cancelar</button>
+        <button class="btn success" id="salvarCliente"><i class="fa-solid fa-check"></i> Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SERVIÇO -->
+  <div id="servicoModal" class="modal">
+    <div class="box">
+      <header><h3 style="margin:0">Cadastrar Serviço (stream)</h3></header>
+      <div class="grid">
+        <div class="col-5 field">
+          <label>Nome do serviço</label>
+          <input id="srvNome" class="input" placeholder="Ex.: Netflix, Prime Video"/>
+        </div>
+        <div class="col-3 field">
+          <label>Investimento (mês)</label>
+          <input id="srvCusto" class="input currency" placeholder="R$ 0,00"/>
+        </div>
+        <div class="col-2 field">
+          <label>Preço aluguel</label>
+          <input id="srvPreco" class="input currency" placeholder="R$ 0,00"/>
+        </div>
+        <div class="col-2 field">
+          <label>Slots (vagas)</label>
+          <input id="srvSlots" type="number" min="1" class="input" placeholder="Ex.: 4"/>
+        </div>
+        <div class="col-12 field">
+          <label>Ativo</label>
+          <div id="srvAtivo" class="toggle active"><i></i></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:14px">
+        <button class="btn" data-close>Cancelar</button>
+        <button class="btn success" id="salvarServico"><i class="fa-solid fa-check"></i> Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <input id="importFile" type="file" accept="application/json" style="display:none"/>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

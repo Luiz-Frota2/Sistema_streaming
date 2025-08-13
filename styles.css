@@ -1,0 +1,100 @@
+:root {
+  --bg: #0e1116;
+  --bg-soft: #141924;
+  --card: #171c28;
+  --text: #e6e6e6;
+  --muted: #9aa4b2;
+  --primary: #6aa2ff;
+  --accent: #8ef0c6;
+  --danger: #ff6b6b;
+  --warning: #ffcc66;
+  --success: #4cd295;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+:root[data-theme="light"]{
+  --bg:#f7f8fb; --bg-soft:#eef1f6; --card:#ffffff; --text:#1e2430; --muted:#606b7b;
+  --primary:#2a73ff; --accent:#10b981; --danger:#e11d48; --warning:#f59e0b; --success:#16a34a;
+  --shadow:0 8px 24px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; font-family:Inter, system-ui, Segoe UI, Roboto, Ubuntu, Cantarell, sans-serif; background:var(--bg); color:var(--text); display:flex; gap:16px; padding:16px;}
+.app{display:grid; grid-template-columns:260px 1fr; gap:16px; width:100%; height:calc(100vh - 32px)}
+.sidebar{background:var(--card); border-radius:16px; padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column}
+.brand{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--bg-soft), transparent); margin-bottom:8px}
+.brand i{font-size:20px; color:var(--accent)}
+.brand h1{font-size:16px; margin:0}
+.nav{display:flex; flex-direction:column; gap:6px; padding:6px}
+.nav button{display:flex; align-items:center; gap:10px; padding:12px; border-radius:12px; border:1px solid transparent; background:transparent; color:var(--text); cursor:pointer; transition:all .2s}
+.nav button:hover{background:var(--bg-soft)}
+.nav button.active{background:linear-gradient(135deg, rgba(106,162,255,.15), rgba(142,240,198,.12)); border-color: rgba(106,162,255,.35)}
+.grow{flex:1}
+.theme{padding:12px; border-radius:12px; background:var(--bg-soft); display:flex; justify-content:space-between; align-items:center}
+
+.content{background:var(--card); border-radius:16px; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column}
+header{display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid rgba(255,255,255,.06)}
+header .right{display:flex; gap:10px; align-items:center}
+.btn{border:none; padding:10px 14px; border-radius:12px; background:var(--bg-soft); color:var(--text); cursor:pointer; transition:transform .06s ease, background .2s}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(135deg,var(--primary), #8bb8ff); color:white}
+.btn.success{background:linear-gradient(135deg,var(--success), #7de8b6); color:#0b1b12}
+.btn.danger{background:linear-gradient(135deg,var(--danger), #ff8ea1); color:white}
+.btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.1)}
+
+main{padding:22px; overflow:auto}
+
+.cards{display:grid; grid-template-columns:repeat(4, minmax(220px, 1fr)); gap:16px}
+.card{background:var(--bg-soft); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:16px; position:relative; overflow:hidden}
+.card h3{margin:0 0 8px 0; font-size:14px; color:var(--muted)}
+.card .value{font-size:28px; font-weight:700}
+.pulse{position:absolute; right:-40px; top:-40px; width:120px; height:120px; border-radius:50%; background:radial-gradient(circle at center, rgba(255,255,255,.12), transparent 60%); animation:pulse 3.5s ease-in-out infinite}
+@keyframes pulse{0%{transform:scale(.9); opacity:.7} 50%{transform:scale(1.05); opacity:.9} 100%{transform:scale(.9); opacity:.7}}
+
+.toolbar{display:flex; gap:10px; margin:16px 0; flex-wrap:wrap}
+
+table{width:100%; border-collapse:collapse; background:var(--bg-soft); border:1px solid rgba(255,255,255,.06); border-radius:14px; overflow:hidden}
+thead{background:linear-gradient(180deg, rgba(255,255,255,.04), transparent)}
+th, td{padding:12px 14px; text-align:left; border-bottom:1px solid rgba(255,255,255,.06)}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+.chip{padding:6px 10px; border-radius:999px; font-size:12px; display:inline-flex; gap:6px; align-items:center}
+.chip.ok{background:rgba(76,210,149,.15); color:var(--success)}
+.chip.pending{background:rgba(255,204,102,.15); color:var(--warning)}
+.chip.overdue{background:rgba(255,107,107,.15); color:var(--danger)}
+
+.toggle{position:relative; width:46px; height:26px; background:rgba(255,255,255,.15); border-radius:999px; cursor:pointer; transition:background .2s}
+.toggle.active{background:var(--primary)}
+.toggle i{position:absolute; top:3px; left:3px; width:20px; height:20px; background:white; border-radius:50%; transition:left .2s}
+.toggle.active i{left:23px}
+
+.grid{display:grid; grid-template-columns:repeat(12, 1fr); gap:16px}
+.col-3{grid-column:span 3}.col-4{grid-column:span 4}.col-5{grid-column:span 5}.col-6{grid-column:span 6}
+.col-7{grid-column:span 7}.col-8{grid-column:span 8}.col-12{grid-column:span 12}
+
+.input, select{background:var(--card); border:1px solid rgba(255,255,255,.08); color:var(--text); padding:12px 12px; border-radius:12px; width:100%}
+label{font-size:12px; color:var(--muted); margin-bottom:6px; display:block}
+.field{display:flex; flex-direction:column; gap:6px}
+
+.modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.4); padding:20px}
+.modal.open{display:flex}
+.modal .box{background:var(--card); border-radius:16px; padding:18px; width:min(900px, 96vw); box-shadow:var(--shadow)}
+.modal header{border:none; padding:0 0 10px 0}
+
+.empty{padding:28px; text-align:center; color:var(--muted)}
+.note{font-size:12px; color:var(--muted)}
+
+.toast{position:fixed; top:16px; right:16px; background:var(--card); border:1px solid rgba(255,255,255,.1); padding:12px 14px; border-radius:12px; box-shadow:var(--shadow); display:none; z-index:9999}
+.toast.show{display:block; animation:fade 3s ease forwards}
+@keyframes fade{0%{opacity:0; transform:translateY(-8px)} 10%{opacity:1; transform:translateY(0)} 90%{opacity:1} 100%{opacity:0}}
+
+canvas{background:var(--bg-soft); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:10px}
+
+@media (max-width: 1280px){ .cards{grid-template-columns:repeat(3, minmax(220px, 1fr))} }
+@media (max-width: 980px){ .cards{grid-template-columns:repeat(2, minmax(220px, 1fr))} }
+@media (max-width: 780px){
+  .app{grid-template-columns:1fr}
+  .sidebar{flex-direction:row; align-items:center; gap:10px}
+  .nav{flex-direction:row; flex-wrap:wrap}
+  .grow{display:none}
+  .cards{grid-template-columns:1fr}
+}
