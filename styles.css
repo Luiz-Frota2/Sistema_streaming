@@ -98,3 +98,54 @@ canvas{background:var(--bg-soft); border:1px solid rgba(255,255,255,.06); border
   .grow{display:none}
   .cards{grid-template-columns:1fr}
 }
+
+/* ====== MOBILE ENHANCEMENTS ====== */
+:root { --tap: 44px; }
+
+body {
+  padding: clamp(8px, 2vw, 16px);
+}
+
+/* Use altura dinâmica em celulares (corrige 100vh no iOS/Android) */
+.app { height: calc(100dvh - 2 * clamp(8px, 2vw, 16px)); }
+@supports not (height: 100dvh) {
+  .app { height: calc(100vh - 2 * clamp(8px, 2vw, 16px)); }
+}
+
+/* Alvos de toque maiores */
+.btn, .toggle, .input, select {
+  min-height: var(--tap);
+}
+
+/* Tabelas roláveis horizontalmente em telas pequenas */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-wrap > table {
+  min-width: 720px; /* evitar quebra feia de colunas */
+}
+
+/* Grid realmente 1 coluna em telas pequenas */
+@media (max-width: 780px){
+  .grid { grid-template-columns: 1fr; }
+  .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-12 { grid-column: 1 / -1; }
+  header .right { width: 100%; justify-content: flex-end; }
+}
+
+/* Telas muito estreitas */
+@media (max-width: 540px){
+  .nav button { padding: 10px 10px; font-size: 14px; }
+  .toolbar { gap: 8px; }
+  .btn.primary, .btn.success, .btn.danger, .btn.ghost { width: 100%; }
+  .cards { grid-template-columns: 1fr; }
+  canvas { height: 200px !important; } /* gráficos mais baixinhos */
+}
+
+/* Pequenos refinamentos de foco (acessibilidade) */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
